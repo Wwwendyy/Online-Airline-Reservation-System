@@ -1,0 +1,29 @@
+body {
+    padding-top: 0px;
+  }
+
+  /* 左侧导航栏子菜单的样式 */
+.submenu .dropdown-toggle::after {
+  display: inline-block;
+  margin-left: 5px;
+  vertical-align: 0.255em;
+  content: "";
+  border-top: 0.3em solid;
+  border-right: 0.3em solid transparent;
+  border-bottom: 0;
+  border-left: 0.3em solid transparent;
+}
+
+.submenu .collapse.show .dropdown-toggle {
+  color: darkblue; /* 活动链接颜色变化 */
+  background-color: #f0f0f0; /* 轻微背景颜色变化，标识展开状态 */
+}
+
+.submenu .collapse.show .sub-link {
+  padding-left: 20px; /* 子链接增加左侧缩进，增强层级感 */
+}
+
+.submenu .sub-link {
+  font-size: 90%; /* 子链接字体大小略小，区别于主导航项 */
+  color: #333; /* 字体颜色 */
+}

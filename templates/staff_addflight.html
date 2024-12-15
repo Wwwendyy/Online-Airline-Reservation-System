@@ -1,0 +1,78 @@
+{% extends 'base.html'%}
+{% block head %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <title> Create New Flights </title>
+{% endblock%}
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Gate W4¾ </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="../staff_home">Staff Home</a>
+            </li>
+        </ul>
+    </div>
+  </nav>
+    <h1> Create a New Flight </h1>
+
+
+    <!-- Warning if there is an error in inserting the new flight -->
+    {% if error %}
+    <p class="warning"> There is an error with the request. Please check your input.<p>
+    {% endif %}
+    {% if success %}
+    <p style="color: seagreen;"> Operation success.<p>
+    {% endif %}
+    <!-- Registration Form -->
+    <div class="signup">
+        <form action="/staff_addflight_go" method="POST">
+        <label for="airline">Airline: <br>{{airline}}</label>
+        <input type="hidden" name="airline" value='{{airline}}' required><br>
+        <label for="flight_num">Flight Number:</label>
+        <input type="number" name="flight_num" value='{{flight_num[0]["MAX(flight_num)"]}}' required><br>
+        <label for="departure_airport">Departure Airport:</label><br>
+        <select type="method" name="departure_airport"> 
+            {% for row in airports %}
+            <option value='{{row["airport_name"]}}'>{{row["airport_name"]}}</option>
+            {% endfor %}
+        </select><br>
+        <label for="departure_time">Departure Time:</label>
+        <!-- Firefox does not support datetime inputs. I could break it down into date and time inputs.
+        But really it's not my fault that Firefox doesn't support such an important feature :/  -->
+        <input type="datetime-local" name="departure_time" required><br>
+        <label for="arrival_airport">Arrival Airport:</label><br>
+        <select type="method" name="arrival_airport"> 
+            {% for row in airports %}
+            <option value='{{row["airport_name"]}}'>{{row["airport_name"]}}</option>
+            {% endfor %}
+        </select><br>
+        <label for="arrival_time">Arrival Time:</label>
+        <input type="datetime-local" name="arrival_time" required><br>
+        <label for="price">Price:</label>
+        <input type="number" name="price" min=10 required><br>
+        <label for="status">Status:</label><br>
+        <select type="method" name="status">
+            <option value="Upcoming">Upcoming</option>
+            <option value="In progress">In Progress</option>
+            <option value="Delayed">Delayed</option>
+            <option value="Canceled">Canceled</option>
+        </select><br>
+        <label for="plane_id">Plane ID:</label><br>
+        <select type="method" name="plane_id"> 
+            {% for row in airplane_ids %}
+            <option value='{{row["airplane_id"]}}'>{{row["airplane_id"]}}</option>
+            {% endfor %}
+        </select><br>
+        <button type="submit">Submit</button>
+        </form>
+    </div>
+{% endblock%}

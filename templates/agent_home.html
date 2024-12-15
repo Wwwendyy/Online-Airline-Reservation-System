@@ -1,0 +1,232 @@
+{% extends 'base.html'%}
+{% block head %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<title> Booking Agent Home </title>
+{% endblock%}
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Gate W4¾ </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/agent_logout">Log Out</a>
+            </li>
+        </ul>
+    </div>
+  </nav>
+<h1> Agent #{{session["book_id"]}}!<br> 
+{{greet}}<br>
+It's <span style="color: red;">WORK TIME</span>!!</span></h1>
+
+
+<h2> My Upcoming Flights</h2>
+
+{% if data %}
+<table style="width:100%">
+    <tr>
+        <th>Airline</th>
+        <th>Fight Number</th>
+        <th>Departure Airport</th>
+        <th>Departure Time</th>
+        <th>Arrival Airport</th>
+        <th>Arrival Time</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Ticket ID</th>
+        <th>Purchase Date</th>
+        <th>Customer Email</th>
+    </tr>
+    {% for row in data %}
+    <tr>
+        {% for key, value in row.items() %}
+                <th> {{ value }} </th>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table> 
+{% else %}
+    <p> Nothing to show here.. </p>  
+{% endif %}
+
+<button onclick = "window.location.href='/agent_myflights';">See All My Flights</button>
+
+<h2> Search for Flights / Purchase Tickets</h2>
+
+<button onclick = "window.location.href='/agent_availableflights';"> See All Upcoming Available Flights </button>
+
+<h2> My Commission Statics </h2>
+
+{% if commission_data %}
+<input type="hidden" id="com_data" value="{{commission_data}}">
+<p> Time interval for statistics: </p>
+Start:
+<input type="date" id="start" value={{past30d}}>
+End:
+<input type="date" id="end" value={{now}}>
+
+<p>
+Total commission: <span id="tot_com"></span><br>
+Average commission: <span id="avg_com"></span><br>
+Number of tickets sold: <span id="n_ticket"></span>
+</p>  
+
+<h2> Top Customers</h2>
+
+<canvas id="n_ticket_chart"></canvas>
+<canvas id="com_chart"></canvas>
+
+{% else %}
+<p> You haven't earned anything yet. Work harder!!</p>
+{% endif %}
+
+<script>
+    var data = JSON.parse(document.getElementById("com_data").value);
+    update_stat();
+    make_charts();
+
+    document.getElementById("start").oninput = function(){update_stat();};
+    document.getElementById("end").oninput = function(){update_stat();};
+
+    function update_stat(){
+        let start = document.getElementById("start").value;
+        let end = document.getElementById("end").value;
+        let tot_com = 0;
+        let n_ticket = 0;
+        start = 10000*start.slice(0,4) + 100*start.slice(5,7) + 1*start.slice(8,10);
+        end =  10000*end.slice(0,4) + 100*end.slice(5,7) + 1*end.slice(8,10);
+
+        for (var i=0; i < data.length; i++){
+            if (start <= +data[i]["purchase_date"] && +data[i]["purchase_date"] <= end){
+                tot_com += +data[i]["price"];
+                n_ticket ++;
+            }
+        }
+        
+        tot_com *= 0.1;
+
+        document.getElementById("tot_com").innerHTML = tot_com;
+        document.getElementById("avg_com").innerHTML = tot_com/n_ticket;
+        document.getElementById("n_ticket").innerHTML = n_ticket;
+    }
+
+    function make_charts(){
+        let n_tic = {};
+        let com = {};
+        let n_tic_lab = [];
+        let com_lab = [];
+        let n_tic_dat = [];
+        let com_dat = [];
+        var now = +new Date();
+        var past6m = now - 365*0.5*24*3600*1000;
+        var past12m = now - 365*24*3600*1000;
+        
+        for (var i=0; i < data.length; i++){
+            let row_date = data[i]["purchase_date"];
+            let row_date_i = +new Date(+row_date.slice(0,4),+row_date.slice(4,6)-1,+row_date.slice(6,8));
+            if (past6m <= row_date_i && row_date_i <= now){
+                if (data[i]["customer_email"] in n_tic){
+                    n_tic[data[i]["customer_email"]] ++;
+                }
+                else{
+                    n_tic[data[i]["customer_email"]] = 1;
+                }
+            }
+            if (past12m <= row_date_i && row_date_i <= now){
+                if (data[i]["customer_email"] in com){
+                    com[data[i]["customer_email"]] += 0.1*data[i]["price"];
+                }
+                else{
+                    com[data[i]["customer_email"]] = 0.1*data[i]["price"];
+                }
+            }
+        } 
+
+        var items = Object.keys(n_tic).map(function(key) {return [key, n_tic[key]];});
+        items.sort(function(first, second) {return second[1] - first[1];});
+        items = items.slice(0, 5);
+        while (items.length < 5){
+            items.push(["N/A", 0])
+        }
+        for (var i=0; i<5; i++){
+            n_tic_lab.push(items[i][0]);
+            n_tic_dat.push(items[i][1]);
+        }
+
+        items = Object.keys(com).map(function(key) {return [key, com[key]];});
+        items.sort(function(first, second) {return second[1] - first[1];});
+        items = items.slice(0, 5);
+        while (items.length < 5){
+            items.push(["N/A", 0])
+        }
+        for (var i=0; i<5; i++){
+            com_lab.push(items[i][0]);
+            com_dat.push(items[i][1]);
+        }
+
+        // n_ticket chart - 6 months
+        Chart.scaleService.updateScaleDefaults('linear', {ticks: {min: 0}});
+        
+        var ctx = document.getElementById('n_ticket_chart').getContext('2d');
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'bar',
+
+            // The data for our dataset
+            data: {
+                labels: n_tic_lab,
+                datasets: [{
+                    label: 'Number of tickets',
+                    backgroundColor: 'steelblue',
+                    borderColor: 'steelblue',
+                    data: n_tic_dat
+                }]
+            },
+
+            // Configuration options go here
+            options: {
+                title: {
+                display: true,
+                text: 'Top Customers (#Tickets, 6 Months)',
+                fontSize: 20,
+                }
+            }}) 
+
+        // commission amount chart - 12 months
+        var ctx = document.getElementById('com_chart').getContext('2d');
+        var chart = new Chart(ctx, {
+            // The type of chart we want to create
+            type: 'bar',
+
+            // The data for our dataset
+            data: {
+                labels: com_lab,
+                datasets: [{
+                    label: 'Commisssion',
+                    backgroundColor: 'steelblue',
+                    borderColor: 'steelblue',
+                    data: com_dat
+                }]
+            },
+
+            // Configuration options go here
+            options: {
+                title: {
+                display: true,
+                text: 'Top Customers (Commission, 12 Months)',
+                fontSize: 20,
+                }
+            }}) 
+
+        
+    }
+</script>
+{% endblock%}

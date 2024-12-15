@@ -1,0 +1,89 @@
+{% extends 'base.html'%}
+{% block head %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<title> Customer Registration </title>
+{% endblock%}
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">Gate W4¾ </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+  </nav>
+<h1> Register as a Customer </h1>
+
+<button onclick = "window.location.href='../';">Home Page</button> 
+
+<!-- Warning if email is already taken -->
+{% if email_taken %}
+<p class="warning"> {{email_taken}} is already taken. Please use a different address.<p>
+
+<!-- Registration Form with values filled with input from the last submission -->
+<div class="signup">
+    <form action="/customer_signup_go" method="POST">
+    <label for="email">Email:</label>
+    <input type="text" name="email" value={{saved_val[0]}} required><br>
+    <label for="name">Name:</label>
+    <input type="text" name="name" value={{saved_val[1]}} required><br>
+    <label for="password">Password:</label>
+    <input type="password" name="password" minlength="8" value={{saved_val[2]}} required>
+    <label for="building_number">Building Number:</label>
+    <input type="text" name="building_number" value={{saved_val[3]}} required><br>
+    <label for="street">Street:</label>
+    <input type="text" name="street" value={{saved_val[4]}} required><br>
+    <label for="city">City:</label>
+    <input type="text" name="city" value={{saved_val[5]}} required><br>
+    <label for="state">State:</label>
+    <input type="text" name="state" value={{saved_val[6]}} required><br>
+    <label for="phone_number">Phone Number:</label>
+    <input type="text" name="phone_number" value={{saved_val[7]}} required><br>
+    <label for="passport_number">Passport Number:</label>
+    <input type="text" name="passport_number" value={{saved_val[8]}} required><br>
+    <label for="passport_expiration">Passport Expiration:</label>
+    <input type="date" name="passport_expiration" value={{saved_val[9]}} required><br>
+    <label for="passport_country">Passport Country:</label>
+    <input type="text" name="passport_country" value={{saved_val[10]}} required><br>
+    <label for="date_of_birth">Date of Birth:</label>
+    <input type="date" name="date_of_birth" value={{saved_val[11]}} required><br>
+    <button type="submit">Submit</button>
+    </form>
+</div>
+{% else %}
+<!-- Registration Form -->
+<div class="signup">
+    <form action="/customer_signup_go" method="POST">
+    <label for="email">Email:</label>
+    <input type="text" name="email" required><br>
+    <label for="name">Name:</label>
+    <input type="text" name="name" required><br>
+    <label for="password">Password:</label>
+    <input type="password" name="password" minlength="8" required><br>
+    <label for="building_number">Building Number:</label>
+    <input type="text" name="building_number" required><br>
+    <label for="street">Street:</label>
+    <input type="text" name="street" required><br>
+    <label for="city">City:</label>
+    <input type="text" name="city" required><br>
+    <label for="state">State:</label>
+    <input type="text" name="state" required><br>
+    <label for="phone_number">Phone Number:</label>
+    <input type="text" name="phone_number" required><br>
+    <label for="passport_number">Passport Number:</label>
+    <input type="text" name="passport_number" required><br>
+    <label for="passport_expiration">Passport Expiration:</label>
+    <input type="date" name="passport_expiration" required><br>
+    <label for="passport_country">Passport Country:</label>
+    <input type="text" name="passport_country" required><br>
+    <label for="date_of_birth">Date of Birth:</label>
+    <input type="date" name="date_of_birth" required><br>
+    <button type="submit">Submit</button>
+    </form>
+</div>
+{% endif %}
+
+{% endblock%}
